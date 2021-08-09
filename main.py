@@ -3,7 +3,7 @@ from ldap3 import ALL
 
 server = ldap3.Server('1.2.3.4', get_info=ALL)
 password = 'ThxforAllTheFish!'
-baseDN = 'dc=ss-syn-01,dc=fennon,dc=com'
+baseDN = 'dc=ss-syn-01,dc=pants,dc=com'
 bindDN = 'uid=root,cn=users,' + baseDN
 groupDN = 'cn=groups,' + baseDN
 objectclassTypes = ['top', 'person', 'posixAccount', 'organizationalPerson', '*']
