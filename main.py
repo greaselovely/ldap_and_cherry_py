@@ -1,60 +1,29 @@
-import ldap3
-from ldap3 import ALL
+#!/usr/bin/python3
 
-server = ldap3.Server('1.2.3.4', get_info=ALL)
-password = 'ThxforAllTheFish!'
-baseDN = 'dc=ss-syn-01,dc=pants,dc=com'
-bindDN = 'uid=root,cn=users,' + baseDN
-groupDN = 'cn=groups,' + baseDN
-objectclassTypes = ['top', 'person', 'posixAccount', 'organizationalPerson', '*']
-
-conn = ldap3.Connection(server, bindDN, password, auto_bind=True)
-
-#server.schema
-
-for type in objectclassTypes:
-    try:
-        conn.search(baseDN, '(&(objectclass=' + type + '))')
-        entries = conn.entries
-    except ldap3.core.exceptions.LDAPInvalidFilterError as e:
-        print(e, conn.search)
-
-print(entries[::-1])
+# I updated the /etc/openldap/ldap.conf with the BASE and URI for this test.
 
 
+import sys
+import subprocess
+from subprocess import Popen as run
+from subprocess import check_output
+from subprocess import Popen, PIPE
 
-#### Found this too, mostly works by changing the objectclass type ###
 
-import ldap
-import ldap.schema
+search = "ldapsearch -x -LLL uid=username"
+search = search.split(' ')
 
-########################################################################
-class SchemasIPA(object):
+admingrp = "ldapsearch -x -LLL -b cn=groups,dc=ss-syn-01,dc=pants,dc=com uid"
+admingrp = admingrp.split(' ')
 
-    __ldaps = ldap.schema
+pipe = Popen(admingrp, stdout=PIPE)
+output = pipe.communicate()[0]
 
-    #----------------------------------------------------------------------
-    def __init__(self, url):
-        """Constructor"""
-        ldap._trace_level = 0
-        ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
-        subschemasubentry_dn, self.schema = ldap.schema.urlfetch(url,ldap._trace_level)
-        self.oc_tree = self.schema.tree(ldap.schema.ObjectClass)        
-        self.at_tree = self.schema.tree(ldap.schema.AttributeType)        
+output = output.decode('utf-8')
+output = output.split('\n')
 
-    def getobjectclasses(self):
-        """
-        trae la listas de objectclasses de un servidor dado
-        """
-        allobjc = {}
-        for a in self.oc_tree.keys():
-            objc = self.schema.get_obj(ldap.schema.ObjectClass, a)
+del output[:3]
 
-            if objc != None:
-                allobjc[objc.oid] = (objc.names, objc.must, objc.may, objc.sup, objc.obsolete)
+for i in output:
+    print(i)
 
-olschemas = SchemasIPA(url='ldap://1.2.3.4')
-
-pa = olschemas.schema.get_obj(olschemas._SchemasIPA__ldaps.ObjectClass, 'posixaccount')
-print('Required Attributes: ', pa.must) #going to print all the attributes that can't be null's
-print('Optional Atributes: ', pa.may) #going to print all the attributes that are optional's
