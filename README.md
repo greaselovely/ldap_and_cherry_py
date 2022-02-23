@@ -1,1 +1,1 @@
-# ldap_and_cherry_py
+This is just a dump for testing my LDAP + Python shits.  Ignore me for now.
